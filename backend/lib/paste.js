@@ -23,10 +23,15 @@ export function getNowMs(req) {
   return Date.now();
 }
 
-export function getPasteUrl(id, req) {
-  const base = getBaseUrl(req);
-  return base ? `${base}/p/${id}` : `/p/${id}`;
+// export function getPasteUrl(id, req) {
+//   const base = getBaseUrl(req);
+//   return base ? `${base}/p/${id}` : `/p/${id}`;
+// }
+
+export function getPasteUrl(id) {
+  return `https://pastebin-lite-aganitha-2.onrender.com/p/${id}`;
 }
+
 
 export async function createPaste(input, req) {
   const now = getNowMs(req);
