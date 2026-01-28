@@ -1,6 +1,8 @@
 # Pastebin-Lite
 
-A small Pastebin-like application. Users can create a text paste and share a link to view it. Pastes may have optional time-based expiry (TTL) and/or view-count limits.
+A lightweight Pastebin-like web application where users can create text pastes and share a link to view them.  
+Each paste can optionally have a **time-based expiry (TTL)** and/or a **maximum view limit**.
+
 
 **Stack:** **MERN** — **M**ongoDB, **E**xpress, **R**eact, **N**ode.js.
 
@@ -33,74 +35,117 @@ A small Pastebin-like application. Users can create a text paste and share a lin
    - **Backend** (Express) runs on **http://localhost:5000**
    - **Frontend** (React) runs on **http://localhost:3000** and proxies `/api` and `/p` to the backend.
 
-   Open http://localhost:3000. Create pastes from the home page. Shared links open at `http://localhost:5000/p/<id>` (or same host in production).
 
-5. **Production build (single server):**
-   ```bash
-   npm run build
-   npm run start --prefix backend
-   ```
-   Express serves the React build and all API/HTML routes on port 5000 (or `PORT` env).
+---
 
-6. **If you see "address already in use" (EADDRINUSE):** Port 5000 (or 3000) is taken by another process. Close any other terminal where `npm run dev` is running, or free the port. On Windows PowerShell:
-   ```powershell
-   Get-NetTCPConnection -LocalPort 5000 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
-   ```
-   Or run on another port: `$env:PORT=5001; npm run start --prefix backend`
+## 🚀 Live Demo
 
-## Project structure (Frontend / Backend separate)
+- **Frontend (Create Paste UI)**  
+  👉 https://pastebin-lite-aganitha.netlify.app
 
-```
-pastebin-lite/
+- **Backend (Paste View + API)**  
+  👉 https://pastebin-lite-aganitha-4.onrender.com
+
+- **Health Check**  
+  👉 https://pastebin-lite-aganitha-4.onrender.com/api/healthz
+
+> Generated paste links look like:  
+> `https://pastebin-lite-aganitha-4.onrender.com/p/<paste_id>`
+
+---
+
+## 🧰 Tech Stack (MERN)
+
+- **Frontend:** React (Vite)
+- **Backend:** Node.js + Express
+- **Database:** MongoDB (MongoDB Atlas)
+- **Deployment:**  
+  - Frontend → Netlify  
+  - Backend → Render  
+
+---
+
+## 🏗️ Architecture Overview
+
+- **Frontend (Netlify)**  
+  - Used only to create pastes  
+  - Sends API requests to backend  
+
+- **Backend (Render)**  
+  - Stores and retrieves pastes from MongoDB  
+  - Generates shareable paste URLs  
+  - Serves paste content as an HTML page (`/p/:id`)  
+
+- **Database (MongoDB Atlas)**  
+  - Stores paste content, expiry, and view count  
+
+This design avoids SPA routing issues and keeps paste links simple and shareable.
+
+---
+
+## 📁 Project Structure
+
+Pastebin-Lite_Aganitha/
 │
-├── frontend/                 # React (Vite) — UI only
-│   ├── src/
-│   │   ├── App.jsx           # Create-paste form, API calls
-│   │   ├── main.jsx
-│   │   └── index.css
-│   ├── index.html
-│   ├── vite.config.js        # Dev proxy to backend
-│   └── package.json
+├── frontend/ # React (Vite)
+│ ├── src/
+│ │ ├── App.jsx # Paste creation UI
+│ │ ├── main.jsx
+│ │ └── index.css
+│ ├── public/
+│ │ └── _redirects # Netlify SPA routing fix
+│ ├── index.html
+│ ├── vite.config.js
+│ └── package.json
 │
-├── backend/                  # Node + Express — API + MongoDB
-│   ├── lib/
-│   │   ├── db.js             # MongoDB connection, healthCheck
-│   │   └── paste.js          # createPaste, fetchAndConsumeView, getPasteForView, escapeHtml
-│   ├── index.js              # Express app, routes, serves frontend build in prod
-│   └── package.json
+├── backend/ # Node + Express
+│ ├── lib/
+│ │ ├── db.js # MongoDB connection & health check
+│ │ └── paste.js # Paste logic
+│ ├── index.js # Express app & routes
+│ └── package.json
 │
 ├── .env.example
-├── .env.local                # (create this, do not commit)
-├── package.json              # Root scripts: dev, build, start
-└── README.md
-```
+├── README.md
+└── package.json
 
-## Persistence layer
 
-**MongoDB** is used as the persistence layer. The backend uses the official `mongodb` driver and a single collection `pastes`. Documents include:
+---
 
-- `content`, `createdAt`, `expiresAt` (optional), `maxViews` (optional), `viewCount`
+## 🔌 API Routes
 
-For deployment, use a managed MongoDB service such as **MongoDB Atlas** and set `MONGODB_URI` in the environment. The backend loads `.env.local` or `.env` from the project root.
+| Method | Route | Description |
+|------|------|-------------|
+| GET | `/api/healthz` | Health check |
+| POST | `/api/pastes` | Create a new paste |
+| GET | `/api/pastes/:id` | Fetch paste (counts as one view) |
+| GET | `/p/:id` | View paste as HTML |
 
-## Design decisions
+---
 
-- **MERN split:** Backend (Express) serves the REST API and the HTML view for `/p/:id`. Frontend (React) is the UI for creating pastes; in production the backend also serves the built frontend from `frontend/dist`.
-- **View counting:** Each successful fetch (API or HTML view) consumes one view. `findOneAndUpdate` with conditions (not expired, under view limit) is used so the update is atomic under concurrent load.
-- **Deterministic expiry (TEST_MODE):** When `TEST_MODE=1`, the `x-test-now-ms` request header (milliseconds since epoch) is used as “now” for expiry checks only.
-- **Safety:** Paste content in the HTML view is escaped (`escapeHtml`) so no script execution is possible.
-- **Base URL:** Paste URLs use `APP_URL` or `VERCEL_URL` when set, or `Host` / `X-Forwarded-Proto` from the request, so shared links use the correct domain in production.
+## 🗄️ Database Schema (MongoDB)
 
-## Required routes
+Collection: **`pastes`**
 
-| Route | Description |
-|-------|-------------|
-| `GET /api/healthz` | Health check; returns `{ "ok": true }` when the app can reach MongoDB. |
-| `POST /api/pastes` | Create paste. Body: `{ "content", "ttl_seconds?", "max_views?" }`. Returns `{ "id", "url" }`. |
-| `GET /api/pastes/:id` | Fetch paste (counts as one view). Returns `{ "content", "remaining_views", "expires_at" }` or 404. |
-| `GET /p/:id` | HTML page that shows the paste content or 404. |
+Fields:
+- `content` – paste text  
+- `createdAt` – creation time  
+- `expiresAt` – optional expiry time  
+- `maxViews` – optional view limit  
+- `viewCount` – number of times viewed  
 
-## Deploying
+View consumption is handled atomically to avoid race conditions.
 
-- **Backend:** Deploy the Node/Express server (e.g. Railway, Render, or Vercel with a serverless adapter). Set `MONGODB_URI` and, if needed, `APP_URL`.
-- **Frontend:** In production, the backend serves the built frontend from `frontend/dist` when `NODE_ENV=production`, so a single deployment of the backend is enough. No manual DB migrations or shell access are required.
+---
+
+## 🧪 Run Locally
+
+### Prerequisites
+- Node.js **18+**
+- MongoDB (Atlas free tier recommended)
+
+### Clone & Install
+```bash
+git clone https://github.com/SrinuTaddi18/Pastebin-Lite_Aganitha.git
+cd Pastebin-Lite_Aganitha
+
