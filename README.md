@@ -38,6 +38,32 @@ Each paste can optionally have a **time-based expiry (TTL)** and/or a **maximum 
 
 ---
 
+pastebin-lite/
+│
+├── frontend/                 # React (Vite) — UI only
+│   ├── src/
+│   │   ├── App.jsx           # Create-paste form, API calls
+│   │   ├── main.jsx
+│   │   └── index.css
+│   ├── index.html
+│   ├── vite.config.js        # Dev proxy to backend
+│   └── package.json
+│
+├── backend/                  # Node + Express — API + MongoDB
+│   ├── lib/
+│   │   ├── db.js             # MongoDB connection, healthCheck
+│   │   └── paste.js          # createPaste, fetchAndConsumeView, getPasteForView, escapeHtml
+│   ├── index.js              # Express app, routes, serves frontend build in prod
+│   └── package.json
+│
+├── .env.example
+├── .env.local                # (create this, do not commit)
+├── package.json              # Root scripts: dev, build, start
+└── README.md
+```
+
+
+
 ## 🚀 Live Demo
 
 - **Frontend (Create Paste UI)**  
