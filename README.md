@@ -89,27 +89,26 @@ This design avoids SPA routing issues and keeps paste links simple and shareable
 
 Pastebin-Lite_Aganitha/
 │
-├── frontend/ # React (Vite)
-│ ├── src/
-│ │ ├── App.jsx # Paste creation UI
-│ │ ├── main.jsx
-│ │ └── index.css
-│ ├── public/
-│ │ └── _redirects # Netlify SPA routing fix
-│ ├── index.html
-│ ├── vite.config.js
-│ └── package.json
+├── frontend/                 # React (Vite) — UI only
+│   ├── src/
+│   │   ├── App.jsx           # Create-paste form, API calls
+│   │   ├── main.jsx
+│   │   └── index.css
+│   ├── index.html
+│   ├── vite.config.js        # Dev proxy to backend
+│   └── package.json
 │
-├── backend/ # Node + Express
-│ ├── lib/
-│ │ ├── db.js # MongoDB connection & health check
-│ │ └── paste.js # Paste logic
-│ ├── index.js # Express app & routes
-│ └── package.json
+├── backend/                  # Node + Express — API + MongoDB
+│   ├── lib/
+│   │   ├── db.js             # MongoDB connection, healthCheck
+│   │   └── paste.js          # createPaste, fetchAndConsumeView, getPasteForView, escapeHtml
+│   ├── index.js              # Express app, routes, serves frontend build in prod
+│   └── package.json
 │
 ├── .env.example
-├── README.md
-└── package.json
+├── .env.local                # (create this, do not commit)
+├── package.json              # Root scripts: dev, build, start
+└── README.md
 
 
 ---
