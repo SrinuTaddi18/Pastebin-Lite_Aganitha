@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const API_BASE = ""; // same origin when proxied or served by backend
+const API_BASE = "https://pastebin-lite-backend-cx8n.onrender.com"; // same origin when proxied or served by backend
 
 export default function App() {
   const [content, setContent] = useState("");
