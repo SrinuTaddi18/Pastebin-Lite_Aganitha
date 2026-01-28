@@ -21,8 +21,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const isProd = process.env.NODE_ENV === "production";
-const frontendBuild = path.join(__dirname, "..", "frontend", "dist");
+//const isProd = process.env.NODE_ENV === "production";
+//const frontendBuild = path.join(__dirname, "..", "frontend", "dist");
 
 /** URL of the create-paste page (frontend). In dev set FRONTEND_URL in .env.local. */
 function getCreatePastePageUrl() {
@@ -114,28 +114,33 @@ app.get("/p/:id", async (req, res) => {
 });
 
 // ----- Root path: redirect to frontend in dev, serve React in prod -----
-app.get("/", (req, res) => {
-  const frontendUrl = getCreatePastePageUrl();
-  if (frontendUrl) {
-    return res.redirect(302, frontendUrl + "/");
-  }
-  if (isProd) {
-    return res.sendFile(path.join(frontendBuild, "index.html"));
-  }
-  res.status(404).set("Content-Type", "text/html").send(
-    `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Not found</title></head><body>
-    <h1>Cannot GET /</h1>
-    <p>In development, set <code>FRONTEND_URL</code> in <code>.env.local</code> to your React dev server URL (e.g. the port Vite shows) and restart the backend. Then &quot;Create a new paste&quot; from paste view will take you back to the form.</p></body></html>`
-  );
+// app.get("/", (req, res) => {
+//   const frontendUrl = getCreatePastePageUrl();
+//   if (frontendUrl) {
+//     return res.redirect(302, frontendUrl + "/");
+//   }
+//   if (isProd) {
+//     return res.sendFile(path.join(frontendBuild, "index.html"));
+//   }
+//   res.status(404).set("Content-Type", "text/html").send(
+//     `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Not found</title></head><body>
+//     <h1>Cannot GET /</h1>
+//     <p>In development, set <code>FRONTEND_URL</code> in <code>.env.local</code> to your React dev server URL (e.g. the port Vite shows) and restart the backend. Then &quot;Create a new paste&quot; from paste view will take you back to the form.</p></body></html>`
+//   );
+// });
+
+app.get("/", (_req, res) => {
+  res.status(200).json({ message: "Backend running" });
 });
 
+
 // ----- Serve React build in production -----
-if (isProd) {
-  app.use(express.static(frontendBuild));
-  app.get("*", (_req, res) => {
-    res.sendFile(path.join(frontendBuild, "index.html"));
-  });
-}
+// if (isProd) {
+//   app.use(express.static(frontendBuild));
+//   app.get("*", (_req, res) => {
+//     res.sendFile(path.join(frontendBuild, "index.html"));
+//   });
+// }
 
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
