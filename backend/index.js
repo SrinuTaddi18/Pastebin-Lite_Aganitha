@@ -119,9 +119,9 @@ app.get("/", (req, res) => {
   if (frontendUrl) {
     return res.redirect(302, frontendUrl + "/");
   }
-  if (isProd) {
-    return res.sendFile(path.join(frontendBuild, "index.html"));
-  }
+  // if (isProd) {
+  //   return res.sendFile(path.join(frontendBuild, "index.html"));
+  // }
   res.status(404).set("Content-Type", "text/html").send(
     `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Not found</title></head><body>
     <h1>Cannot GET /</h1>
