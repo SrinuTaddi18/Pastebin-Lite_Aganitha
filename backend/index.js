@@ -114,25 +114,20 @@ app.get("/p/:id", async (req, res) => {
 });
 
 // ----- Root path: redirect to frontend in dev, serve React in prod -----
-// app.get("/", (req, res) => {
-//   const frontendUrl = getCreatePastePageUrl();
-//   if (frontendUrl) {
-//     return res.redirect(302, frontendUrl + "/");
-//   }
-//   if (isProd) {
-//     return res.sendFile(path.join(frontendBuild, "index.html"));
-//   }
-//   res.status(404).set("Content-Type", "text/html").send(
-//     `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Not found</title></head><body>
-//     <h1>Cannot GET /</h1>
-//     <p>In development, set <code>FRONTEND_URL</code> in <code>.env.local</code> to your React dev server URL (e.g. the port Vite shows) and restart the backend. Then &quot;Create a new paste&quot; from paste view will take you back to the form.</p></body></html>`
-//   );
-// });
-
-app.get("/", (_req, res) => {
-  res.status(200).json({ message: "Backend running" });
+app.get("/", (req, res) => {
+  const frontendUrl = getCreatePastePageUrl();
+  if (frontendUrl) {
+    return res.redirect(302, frontendUrl + "/");
+  }
+  if (isProd) {
+    return res.sendFile(path.join(frontendBuild, "index.html"));
+  }
+  res.status(404).set("Content-Type", "text/html").send(
+    `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Not found</title></head><body>
+    <h1>Cannot GET /</h1>
+    <p>In development, set <code>FRONTEND_URL</code> in <code>.env.local</code> to your React dev server URL (e.g. the port Vite shows) and restart the backend. Then &quot;Create a new paste&quot; from paste view will take you back to the form.</p></body></html>`
+  );
 });
-
 
 // ----- Serve React build in production -----
 // if (isProd) {
@@ -141,6 +136,10 @@ app.get("/", (_req, res) => {
 //     res.sendFile(path.join(frontendBuild, "index.html"));
 //   });
 // }
+app.get("/", (_req, res) => {
+  res.status(200).json({ status: "Backend running" });
+});
+
 
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
