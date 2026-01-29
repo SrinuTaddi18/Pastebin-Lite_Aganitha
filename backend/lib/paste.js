@@ -27,9 +27,8 @@ export function getNowMs(req) {
 //   const base = getBaseUrl(req);
 //   return base ? `${base}/p/${id}` : `/p/${id}`;
 // }
-
-export function getPasteUrl(id) {
-  return `https://pastebin-lite-aganitha-2.onrender.com/p/${id}`;
+export function getPasteUrl(id, req) {
+  return `https://pastebin-lite-aganitha-4.onrender.com/p/${id}`;
 }
 
 
